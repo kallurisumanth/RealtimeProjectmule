@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="4d943fda-ec7b-49ab-8533-1e54c695cb45" >
+		<db:my-sql-connection host="${db.mysql.host}" port="${db.mysql.port}" user="${db.mysql.username}" password="${db.mysql.password}" database="${db.mysql.database}" />
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="c18fad84-fa9a-4aca-8971-568bb3d8dde6" >
+		<http:listener-connection host="${http.listner.host}" port="${http.listner.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="b9924b7e-1681-46d4-bfd9-621aced97c03" file="config\local.yaml" />
+</mule>
