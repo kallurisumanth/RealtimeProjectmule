@@ -36,7 +36,6 @@
 							<artifactId>mysql-connector-java</artifactId>
 						</sharedLibrary>
 					</sharedLibraries>
-					
 				</configuration>
 			</plugin>
 		</plugins>
