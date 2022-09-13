@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="travelontip-externalsystemFlow" doc:id="18d639f5-64e9-46ea-8b96-ed36ad2bde98" >
+		<http:listener doc:name="Listener" doc:id="794616eb-a676-4085-9ffe-dac9e57cff38" path="${http.listner.path}" config-ref="HTTP_Listener_config1">
+			<http:error-response statusCode="#[vars.statusCode as Number]">
+				<http:body ><![CDATA[#[vars.errMsg default "Critical Error"]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<ee:transform doc:name="Transform Message" doc:id="05e5334a-7732-40b9-99f8-bee704c2e4f5" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.transactioId]]></ee:set-variable>
+				<ee:set-variable variableName="serviceType" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.uriParams.serviceType]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5afa191e-69b3-4759-82a4-a50d72a5a3c2" message="Request Recieved for TravelOnTip External system for TransactionId #[vars.transactioId]"/>
+		<choice doc:name="Choice" doc:id="9b61b8e2-5f5b-4808-9a33-bc651588a9f7" >
+			<when expression='#[vars.serviceType == "routes"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="3a543277-2057-4aa9-b9a8-c30e5a57ddc9" message="Routes flow called  for TravelOnTip External system for TransactionId #[vars.transactioId]"/>
+				<flow-ref doc:name="Flow Reference" doc:id="a8f7c863-06c9-4e42-aa8d-a85c1774a985" name="TravelOnTip-GetRoutes-ImplementationSub_Flow"/>
+			</when>
+			<when expression='#[vars.serviceType == "schedules"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="d5ef8e03-24b0-4283-9888-590474037b7e" message="Schedule flow called  for TravelOnTip External system for TransactionId #[vars.transactioId]"/>
+				<flow-ref doc:name="Flow Reference" doc:id="adc9efe9-a4d9-4d80-a980-79d365d79fe3" name="TravelOnTip-GetSchedules-ImplementationSub_Flow"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="da83a4bc-4c44-43de-abae-c3db451048ed" message="URI parameter is not correct forTravelOnTip External system for TransactionId #[vars.transactioId]"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="734068da-0911-4d8a-97d4-0ef869dc48df" message="Request Send for TravelOnTip External system for TransactionId #[vars.transactioId]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e2ca1f2a-8d09-4579-b3e9-7882565c837e" >
+				<logger level="INFO" doc:name="Logger" doc:id="72d9b7fd-e6d1-473f-8b2f-9514f5b19278" message="Error Recieved for TravelOnTip External system for TransactionId #[vars.transactioId] reasons: #[error.errorMessage] errorType: #[error.errorType]"/>
+				<ee:transform doc:name="Transform Message" doc:id="a61322de-032f-4b95-a8ec-6845a0c0386a" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="statusCode" ><![CDATA[%dw 2.0
+output application/json
+---
+500]]></ee:set-variable>
+						<ee:set-variable variableName="errMsg" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"ErrorCode": "XE1023",
+	"ErrorMessage": "Error in TravelOnTip System"
+	
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
